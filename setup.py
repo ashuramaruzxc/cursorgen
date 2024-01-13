@@ -6,22 +6,21 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
     long_description = f.read()
 
 setup(
-    name='win2xcur',
+    name='cursorgen',
     version='0.1.2',
     packages=find_packages(),
-    install_requires=['numpy', 'Wand'],
+    install_requires=['numpy', 'pillow'],
 
     entry_points={
         'console_scripts': [
-            'win2xcur = win2xcur.main.win2xcur:main',
-            'x2wincur = win2xcur.main.x2wincur:main',
+            'cursorgen = cursorgen.__main__:main',
         ],
     },
 
     author='quantum',
     author_email='quantum2048@gmail.com',
     url='https://github.com/quantum5/win2xcur',
-    description='win2xcur is a tool to convert Windows .cur and .ani cursors to Xcursor format.',
+    description='cursorgen is a tool to convert Windows .cur and .ani cursors to Xcursor format.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     keywords='cur ani x11 windows win32 cursor xcursor',

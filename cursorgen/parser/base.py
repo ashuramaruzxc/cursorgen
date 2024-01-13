@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import List
 
-from win2xcur.cursor import CursorFrame
+from cursorgen.utils.cursor import CursorFrame
 
 
 class BaseParser(metaclass=ABCMeta):

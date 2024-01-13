@@ -2,10 +2,10 @@ import struct
 from collections import defaultdict
 from typing import Any, Dict, List, Tuple, cast
 
-from wand.image import Image
+from PIL import Image
 
-from win2xcur.cursor import CursorFrame, CursorImage
-from win2xcur.parser.base import BaseParser
+from cursorgen.utils.cursor import CursorFrame, CursorImage
+from cursorgen.parser.base import BaseParser
 
 
 class XCursorParser(BaseParser):
@@ -78,14 +78,13 @@ class XCursorParser(BaseParser):
             if len(blob) != image_size:
                 raise ValueError(f'Invalid image at {image_start}: expected {image_size} bytes, got {len(blob)} bytes')
 
-            image = Image(width=width, height=height)
-            image.import_pixels(channel_map='BGRA', data=blob)
+            image = Image.frombytes("RGBA", (width, height), blob, "raw", "BGRA")
             images_by_size[nominal_size].append(
-                (CursorImage(image.sequence[0], (x_offset, y_offset), nominal_size), delay)
+                (CursorImage(image, (x_offset, y_offset), nominal_size), delay)
             )
 
         if len(set(map(len, images_by_size.values()))) != 1:
-            raise ValueError('win2xcur does not support animations where each size has different number of frames')
+            raise ValueError('cursorgen does not support animations where each size has different number of frames')
 
         result = []
         for sequence in cast(Any, zip(*images_by_size.values())):
@@ -94,7 +93,7 @@ class XCursorParser(BaseParser):
             images, delays = cast(Any, zip(*sequence))
 
             if len(set(delays)) != 1:
-                raise ValueError('win2xcur does not support animations where each size has a different frame delay')
+                raise ValueError('cursorgen does not support animations where each size has a different frame delay')
 
             result.append(CursorFrame(list(images), delays[0]))
 

@@ -2,9 +2,9 @@ import struct
 from copy import copy
 from typing import Any, Iterable, List, Tuple
 
-from win2xcur.cursor import CursorFrame
-from win2xcur.parser.base import BaseParser
-from win2xcur.parser.cur import CURParser
+from cursorgen.utils.cursor import CursorFrame
+from cursorgen.parser.base import BaseParser
+from cursorgen.parser.cur import CURParser
 
 
 class ANIParser(BaseParser):
@@ -112,5 +112,4 @@ class ANIParser(BaseParser):
         sequence = [copy(frames[i]) for i in order]
         for frame, delay in zip(sequence, delays):
             frame.delay = delay / 60
-
         return sequence

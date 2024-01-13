@@ -1,10 +1,21 @@
 from itertools import chain
 from operator import itemgetter
-from typing import List
+from typing import Any, List
+import numpy as np
 
 from win2xcur.cursor import CursorFrame
 from win2xcur.parser import XCursorParser
-from win2xcur.utils import premultiply_alpha
+
+
+def premultiply_alpha(source: bytes) -> bytes:
+    buffer: np.ndarray[Any, np.dtype[np.double]] = np.frombuffer(
+        source, dtype=np.uint8
+    ).astype(np.double)
+    alpha = buffer[3::4] / 255.0
+    buffer[0::4] *= alpha
+    buffer[1::4] *= alpha
+    buffer[2::4] *= alpha
+    return buffer.astype(np.uint8).tobytes()
 
 
 def to_x11(frames: List[CursorFrame]) -> bytes:
@@ -13,6 +24,8 @@ def to_x11(frames: List[CursorFrame]) -> bytes:
     for frame in frames:
         for cursor in frame:
             hx, hy = cursor.hotspot
+            print(cursor.image)
+
             header = XCursorParser.IMAGE_HEADER.pack(
                 XCursorParser.IMAGE_HEADER.size,
                 XCursorParser.CHUNK_IMAGE,
@@ -27,7 +40,7 @@ def to_x11(frames: List[CursorFrame]) -> bytes:
             chunks.append((
                 XCursorParser.CHUNK_IMAGE,
                 cursor.nominal,
-                header + premultiply_alpha(bytes(cursor.image.export_pixels(channel_map='BGRA')))
+                header + premultiply_alpha(cursor.image.tobytes("raw", "BGRA"))
             ))
 
     header = XCursorParser.FILE_HEADER.pack(

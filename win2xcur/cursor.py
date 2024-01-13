@@ -1,20 +1,19 @@
 from typing import Iterator, List, Tuple
-
-from wand.sequence import SingleImage
+from PIL import Image
 
 
 class CursorImage:
-    image: SingleImage
+    image: Image
     hotspot: Tuple[int, int]
     nominal: int
 
-    def __init__(self, image: SingleImage, hotspot: Tuple[int, int], nominal: int) -> None:
+    def __init__(self, image: Image.Image, hotspot: Tuple[int, int], nominal: int) -> None:
         self.image = image
         self.hotspot = hotspot
         self.nominal = nominal
 
     def __repr__(self) -> str:
-        return f'CursorImage(image={self.image!r}, hotspot={self.hotspot!r}, nominal={self.nominal!r})'
+        return f'CursorImage(image="Image with size {self.image.size}", hotspot={self.hotspot!r}, nominal={self.nominal!r})'
 
 
 class CursorFrame:
@@ -35,4 +34,4 @@ class CursorFrame:
         return iter(self.images)
 
     def __repr__(self) -> str:
-        return f'CursorFrame(images={self.images!r}, delay={self.delay!r})'
+        return f'CursorFrame(images=[{", ".join(repr(image) for image in self.images)}], delay={self.delay!r})'

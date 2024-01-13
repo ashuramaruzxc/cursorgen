@@ -112,5 +112,4 @@ class ANIParser(BaseParser):
         sequence = [copy(frames[i]) for i in order]
         for frame, delay in zip(sequence, delays):
             frame.delay = delay / 60
-
         return sequence

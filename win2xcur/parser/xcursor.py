@@ -2,7 +2,7 @@ import struct
 from collections import defaultdict
 from typing import Any, Dict, List, Tuple, cast
 
-from wand.image import Image
+from PIL import Image
 
 from win2xcur.cursor import CursorFrame, CursorImage
 from win2xcur.parser.base import BaseParser
@@ -78,10 +78,9 @@ class XCursorParser(BaseParser):
             if len(blob) != image_size:
                 raise ValueError(f'Invalid image at {image_start}: expected {image_size} bytes, got {len(blob)} bytes')
 
-            image = Image(width=width, height=height)
-            image.import_pixels(channel_map='BGRA', data=blob)
+            image = Image.frombytes("RGBA", (width, height), blob, "raw", "BGRA")
             images_by_size[nominal_size].append(
-                (CursorImage(image.sequence[0], (x_offset, y_offset), nominal_size), delay)
+                (CursorImage(image, (x_offset, y_offset), nominal_size), delay)
             )
 
         if len(set(map(len, images_by_size.values()))) != 1:

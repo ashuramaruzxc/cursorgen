@@ -57,7 +57,8 @@ def main() -> None:
             #                            sigma=args.shadow_sigma, xoffset=args.shadow_x, yoffset=args.shadow_y)
             result = to_x11(cursor.frames)
             output = os.path.join(args.output, os.path.splitext(os.path.basename(name))[0])
-            with open(output, 'wb') as f:
+
+            with open(f"{output}", 'wb') as f:
                 f.write(result)
 
     with ThreadPool(cpu_count()) as pool:

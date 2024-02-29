@@ -44,36 +44,35 @@ class CURParser(BaseParser):
         images = []
         for hotspot, image_data in zip(self._hotspots, self.image_data):
             png_data = self._to_png(image_data)
+            bmp_data = self._to_bmp(image_data)
 
-            stream = io.BytesIO(png_data)
+            with io.BytesIO(bmp_data) as stream:
+                bmp = Image.open(stream)
+                bmp.load()
+                stream.close()
 
-            image = Image.open(stream)
-            image.load()
-            stream.close()
+            with io.BytesIO(png_data) as stream:
+                image = Image.open(stream)
+                image.load()
+                stream.close()
+
+            # if bmp.mode != "RGBA":
+            #     bmp = bmp.convert("RGBA")
+            #
+            # if image.mode != 'RGBA':
+            #     image = image.convert('RGBA')
+
             c_image = CursorImage(image, hotspot, image.width)
             images.append(c_image)
         return [CursorFrame(images)]
 
     @staticmethod
     def _to_bmp(blob: bytes) -> bytes:
-        bmp_header_size = 14
-        dib_header_size = struct.unpack_from('<I', blob[:4])[0]
-
-        original_height = struct.unpack_from('<I', blob[8:12])[0]
-        corrected_height = original_height // 2
-
-        # Adjust file size in BMP header
-        file_size = bmp_header_size + len(blob) - (corrected_height * 4)  # Assuming 32bpp for simplicity
-        pixel_data_offset = bmp_header_size + dib_header_size
-
-        # Create a corrected DIB header with the new height
-        corrected_dib_header = blob[:8] + struct.pack('<I', corrected_height) + blob[12:dib_header_size]
-
-        # Construct the BMP header
-        bmp_header = struct.pack('<2sIHHI', b'BM', file_size, 0, 0, pixel_data_offset)
-        header = bytes(bmp_header + corrected_dib_header + blob[dib_header_size:])
-
-        return header
+        with io.BytesIO(blob) as input_stream:
+            with Image.open(input_stream) as img:
+                with io.BytesIO() as output_stream:
+                    img.save(output_stream, format="BMP")
+                    return output_stream.getvalue()
 
     @staticmethod
     def _to_png(blob: bytes) -> bytes:

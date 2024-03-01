@@ -9,12 +9,12 @@ setup(
     name='win2xcur',
     version='0.1.2',
     packages=find_packages(),
-    install_requires=['numpy', 'Wand'],
+    install_requires=['numpy', 'pillow'],
 
     entry_points={
         'console_scripts': [
-            'win2xcur = win2xcur.main.win2xcur:main',
-            'x2wincur = win2xcur.main.x2wincur:main',
+            'win2xcur = win2xcur.__main__:main',
+            # 'x2wincur = win2xcur.main.x2wincur:main', move to __main__.py
         ],
     },
 

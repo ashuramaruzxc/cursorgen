@@ -143,3 +143,4 @@ cython_debug/
 # For testing
 input/
 output/
+.direnv

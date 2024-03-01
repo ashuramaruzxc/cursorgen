@@ -1,25 +1,13 @@
 import struct
-from typing import List, Optional, Tuple, Any
+from typing import Dict, Tuple, Any, List
+
+from PIL import Image
 
 from win2xcur.parser.base import BaseParser
 
 
 class BMPParser(BaseParser):
-    SIGNATURE = {
-        b'BM': 'Windows BMP',
-        b'BA': 'OS/2 Bitmap Array',
-        b'CI': 'OS/2 Color Icon',
-        b'CP': 'OS/2 Color Pointer',
-        b'IC': 'OS/2 Icon',
-        b'PT': 'OS/2 Pointer'
-    }
-    # Signature
-    # FileSize
-    # Reserved1
-    # Reserved2
-    # offbits
     BMP_HEADER = struct.Struct('<2sIHHI')
-    # DIB header (BITMAPINFOHEADER)
     DIB_HEADER = struct.Struct('<IIIHHIIIIII')
 
     @classmethod
@@ -28,92 +16,177 @@ class BMPParser(BaseParser):
         if len(blob) < cls.BMP_HEADER.size:
             return False
         signature, *_ = cls.BMP_HEADER.unpack_from(blob)
-        return signature in cls.SIGNATURE
+        return signature
 
     def __init__(self, blob: bytes) -> None:
-        self.blob = blob
-        self.image_type = self._get_image_type(blob)
-        # if not self.image_type:
-        #     raise ValueError(f"Not a valid BMP file or unsupported BMP type, expected:{self.image_type}")
-        self.width, self.height, self.bits_per_pixel = self._parse()
+        super().__init__(blob)
+        self.image_data: List[bytes] = []
+        self.parameters: Dict = self._extract()
+        self.frame = self._parse()
 
     def _unpack(self, struct_cls: struct.Struct, offset: int) -> Tuple[Any, ...]:
         return struct_cls.unpack(self.blob[offset:offset + struct_cls.size])
 
-    def _parse(self) -> Tuple[int, int, int]:
-        signature, size, reserved1, reserved2, offset = self.BMP_HEADER.unpack(self.blob[:self.BMP_HEADER.size])
-        assert reserved1 == 0
-        assert reserved2 == 0
-
-    def _get_image_type(self, blob: bytes) -> Optional[str]:
-        """Identify the BMP image type based on its signature."""
-        if len(blob) < self.BMP_HEADER.size:
-            return None
-        signature, *_ = self.BMP_HEADER.unpack_from(blob)
-        return self.SIGNATURE.get(signature)
-
-    def _parse_dib_headers(self):
-        offset = self.BMP_HEADER.size
-
-        off_img, size = self.BMP_HEADER.unpack(
-            self.blob[offset:offset + self.BMP_HEADER.size])
-
-        if size == 40:
-            return self._parse_bitmapinfoheader(offset)
-        elif size == 108:
-            return self._parse_bitmapv4header(offset)
-        elif size == 124:
-            return self._parse_bitmapv5header(offset)
-        else:
-            raise ValueError(f"Unsupported DIB header size: {size}")
-
-    def _parse_bitmapinfoheader(self, offset: int) -> Tuple[int, int, int, int]:
-        size, width, height, planes, bits_per_pixel, compression, image_size, x_pixels_per_meter, y_pixels_per_meter, colors_used, important_colors = self.DIB_HEADER.unpack_from(
-            self.blob, offset)
-        return width, abs(height), bits_per_pixel, compression
-
-    def _parse_bitmapv4header(self, offset) -> Tuple[int, int, int, int]:
-        size, width, height, planes, bits_per_pixel, compression, image_size, x_pixels_per_meter, y_pixels_per_meter, colors_used, important_colors = self.DIB_HEADER.unpack_from(
-            self.blob, offset)
-        return width, abs(height), bits_per_pixel, compression
-
-    def _parse_bitmapv5header(self, offset) -> Tuple[int, int, int, int]:
-        size, width, height, planes, bits_per_pixel, compression, image_size, x_pixels_per_meter, y_pixels_per_meter, colors_used, important_colors = self.DIB_HEADER.unpack_from(
-            self.blob, offset)
-        return width, abs(height), bits_per_pixel, compression
-
-    def _extract_pixel_data(self, width, height, bpp, offset):
-        """Extracts pixel data from a BMP file.
-
-        Args:
-            width (int): The width of the image.
-            height (int): The height of the image.
-            bpp (int): Bits per pixel.
-            offset (int): The offset where pixel data starts in the blob.
-
-        Returns:
-            A 2D array of pixels.
+    def _extract(self) -> Dict:
+        """ Gets bitmap parameters.
+        Should be:
+        biSize is the size of the header
+        biHeight doubled respect bHeight
+        biPlanes = 1
+        biCompression = 0 (if BI_RGB)
+        biSizeImage = size of the XOR mask + AND mask (can be also 0)
+        biXPPerMeter = 0 (if not used)
+        biYPPerMeter = 0 (if not used)
+        biClrUsed = 0 (if not used)
+        biClrImportant = 0 (if not used)
         """
-        # Calculate the number of bytes per pixel
-        bytes_per_pixel = bpp // 8
+        size, width, height, planes, bpp, compression, image_size, x_pixels_per_meter, y_pixels_per_meter, colors_used, important_colors = self.DIB_HEADER.unpack(
+            self.blob[:self.DIB_HEADER.size])
 
-        # BMP rows are padded to 4 bytes
-        row_padded = (width * bytes_per_pixel + 3) & ~3
+        height = int(height / 2.)
 
-        pixels = []
-        for y in range(height):
-            row = []
-            for x in range(width):
-                pixel_offset = offset + y * row_padded + x * bytes_per_pixel
-                pixel_data = self.blob[pixel_offset:pixel_offset + bytes_per_pixel]
-                # Assuming the BMP uses BGRA format, convert to RGBA or as needed
-                if bytes_per_pixel == 3:  # For 24bpp
-                    pixel = (pixel_data[2], pixel_data[1], pixel_data[0])  # Convert BGR to RGB
-                elif bytes_per_pixel == 4:  # For 32bpp
-                    pixel = (pixel_data[2], pixel_data[1], pixel_data[0], pixel_data[3])  # Convert BGRA to RGBA
+        XOR_size = self._row_size(bpp, width) * height
+        AND_size = self._mask_size(width) * height
+
+        palette_size = len(self.blob) - (size + XOR_size + AND_size)
+        if palette_size < 0:
+            palette_size = 0
+
+        Palette = self.blob[size: size + palette_size]
+        XORData = self.blob[size + palette_size: size + palette_size + XOR_size]
+        ANDData = self.blob[size + palette_size + XOR_size: len(self.blob)]
+
+        parameters = {
+            "size": size,
+            "width": width,
+            "height": height,
+            "planes": planes,
+            "bpp": bpp,
+            "compress": compression,
+            "size_img": image_size,
+            "colors": colors_used,
+            "size_pal": palette_size,
+            "num_pal": 0,
+            "palette": Palette,
+            "size_xor": XOR_size,
+            "xor": XORData,
+            "size_and": AND_size,
+            "and": ANDData
+        }
+        return parameters
+
+    def _parse(self):
+        """ Gets image from bytes. """
+
+        modes = {
+            32: ("RGBA", "BGRA"),
+            24: ("RGB", "BGR"),
+            16: ("RGB", "BGR"),
+            8: ("P", "P"),
+            4: ("P", "P;4"),
+            2: ("P", "P;2"),
+            1: ("P", "P;1")
+        }
+
+        if self.is_gray():
+            modes.update({
+                8: ("L", "L"),
+                4: ("L", "L;4"),
+                2: ("L", "L;2"),
+                1: ("1", "1")
+            })
+
+        pad_msk = self._mask_size(self.parameters['width'])
+
+        if self.parameters['bpp'] == 16:
+            # PIL I;16 converted to RGB555 format.
+            pad_ima = self._row_size(24, self.parameters['width'])
+            image_data = []
+            for i in range(0, len(self.parameters['xor']), 2):
+                data = int.from_bytes(self.parameters['xor'][i: i + 2], byteorder='little')
+                a = (data & 0x8000) >> 15
+                b = (data & 0x7C00) >> 10
+                g = (data & 0x3E0) >> 5
+                r = (data & 0x1F)
+                r = (r << 3) | (r >> 2)
+                g = (g << 3) | (g >> 2)
+                b = (b << 3) | (b >> 2)
+                value = r << 16 | g << 8 | b
+                image_data.append(value.to_bytes(3, byteorder='little'))
+
+            image_data = b"".join(image_data)
+            image = Image.frombytes(modes[self.parameters['bpp']][0],
+                                    (self.parameters['width'], self.parameters['height']),
+                                    image_data, 'raw', modes[self.parameters['bpp']][1], pad_ima, -1)
+        else:
+            pad_ima = self._row_size(self.parameters['bpp'], self.parameters['width'])
+            image = Image.frombytes(modes[self.parameters['bpp']][0],
+                                    (self.parameters['width'], self.parameters['height']),
+                                    self.parameters['xor'], 'raw', modes[self.parameters['bpp']][1], pad_ima, -1)
+
+        if self.parameters['bpp'] == 32:
+            mask = Image.frombuffer("L", (self.parameters['width'], self.parameters['height']),
+                                    self.parameters['xor'][3::4], 'raw', 'L', 0, -1)
+        else:
+            mask = Image.frombuffer("1", (self.parameters['width'], self.parameters['height']),
+                                    self.parameters['and'], 'raw', '1;I', pad_msk, -1)
+
+        if self.parameters['palette'] and self.parameters['bpp'] <= 8:
+            image = image.convert('P')
+            palette_int = [self.parameters['palette'][i: i + 3] for i in range(0, self.parameters['size_pal'], 4)]
+            rsv = [self.parameters['palette'][i + 3: i + 4] for i in range(0, self.parameters['size_pal'], 4)]
+
+            if (self.parameters['size_pal'] % 3 == 0) and (self.parameters['size_pal'] % 4 == 0):
+                if len(set(rsv)) <= 1:
+                    # palette RGBA.
+                    palette_int = [pal[i] for pal in palette_int for i in reversed(range(3))]
+                    self.parameters['num_pal'] = self.parameters['size_pal'] // 4
                 else:
-                    raise ValueError("Unsupported bits per pixel")
-                row.append(pixel)
-            pixels.append(row)
+                    # palette RGB.
+                    palette_int = [pal for pal in self.parameters['palette'][::-1]]
+                    self.parameters['num_pal'] = self.parameters['size_pal'] // 3
+            else:
+                if self.parameters['size_pal'] % 3 == 0:
+                    # palette RGB.
+                    palette_int = [pal for pal in self.parameters['palette'][::-1]]
+                    self.parameters['num_pal'] = self.parameters['size_pal'] // 3
+                elif self.parameters['size_pal'] % 4 == 0:
+                    # palette RGBA.
+                    palette_int = [pal[i] for pal in palette_int for i in reversed(range(3))]
+                    self.parameters['num_pal'] = self.parameters['size_pal'] // 4
 
-        return pixels
+            if self.parameters['bpp'] == 1:
+                pal = list(image.palette.getdata()[1])
+                pal[:3], pal[-3:] = palette_int[:3], palette_int[-3:]
+                palette_int = pal
+            # Assign palette.
+            image.putpalette(palette_int)
+
+        image = image.convert('RGBA')
+        image.putalpha(mask)
+
+        return image
+
+    @staticmethod
+    def _row_size(offset, width) -> int:
+        """ Computes number of bytes per row in a image (stride). """
+        # The size of each row is rounded up to the nearest multiple of 4 bytes.
+        return int(((offset * width + 31) // 32)) * 4
+
+    @staticmethod
+    def _mask_size(width) -> int:
+        """ Computes number of bytes for AND mask. """
+        return int((width + 32 - width % 32 if (width % 32) > 0 else width) / 8)
+
+    @staticmethod
+    def is_png(blob: bytes) -> bool:
+        """ Determines whether a sequence of bytes is a PNG. """
+        return blob.startswith(b'\x89PNG\r\n\x1a\n')
+
+    def is_gray(self):
+        """ Determines whether an image is grayscale (from palette). """
+        chunks = [self.parameters['palette'][i: i + 3] for i in range(0, self.parameters['size_pal'], 4)]
+        if all(elem == block[0] for block in chunks for elem in block):
+            return True
+        else:
+            return False

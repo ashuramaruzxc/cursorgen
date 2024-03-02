@@ -2,6 +2,7 @@ import struct
 from typing import Dict, Tuple, Any, List
 
 from PIL import Image
+import PIL.Image as ImageType
 
 from win2xcur.parser.base import BaseParser
 
@@ -75,7 +76,7 @@ class BMPParser(BaseParser):
         }
         return parameters
 
-    def _parse(self):
+    def _parse(self) -> ImageType:
         """ Gets image from bytes. """
 
         modes = {
@@ -104,7 +105,6 @@ class BMPParser(BaseParser):
             image_data = []
             for i in range(0, len(self.parameters['xor']), 2):
                 data = int.from_bytes(self.parameters['xor'][i: i + 2], byteorder='little')
-                a = (data & 0x8000) >> 15
                 b = (data & 0x7C00) >> 10
                 g = (data & 0x3E0) >> 5
                 r = (data & 0x1F)

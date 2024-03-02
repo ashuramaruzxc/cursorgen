@@ -1,6 +1,7 @@
 import struct
 from typing import List
 
+from PIL import Image
 from win2xcur.cursor import CursorFrame, CursorImage
 from win2xcur.parser.base import BaseParser
 from win2xcur.parser.bmp import BMPParser
@@ -47,9 +48,7 @@ class CURParser(BaseParser):
         images = []
         for hotspot, image_data in zip(self._hotspots, self.image_data):
             try:
-                bmp = BMPParser(image_data)
-                image = bmp.frame
-
+                image: Image.Image = BMPParser(image_data).frame
                 c_image = CursorImage(image, hotspot, image.width)
                 images.append(c_image)
             except IOError as e:

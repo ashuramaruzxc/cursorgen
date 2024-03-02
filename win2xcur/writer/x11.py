@@ -27,10 +27,11 @@ def to_x11(frames: List[CursorFrame], sizes: Optional[List[int]] = None) -> byte
                 scale_factor = size / max(width, height)
                 x, y = (int(hx * scale_factor), int(hy * scale_factor))
 
-                new_image = image.resize((size, size), Image.Resampling.NEAREST)
-                blob = io.BytesIO()
-                new_image.save(blob, "PNG", optimize=True)
-                image_data = blob.getvalue()
+                image = image.resize((size, size), Image.Resampling.NEAREST)
+                with io.BytesIO() as output:
+                    image.save(output, format="PNG", optimize=True)
+                    with Image.open(output) as compressed_image:
+                        image_data = compressed_image.tobytes("raw", "BGRA")
 
                 header = XCursorParser.IMAGE_HEADER.pack(
                     XCursorParser.IMAGE_HEADER.size,

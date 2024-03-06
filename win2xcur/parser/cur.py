@@ -2,7 +2,7 @@ import struct
 from typing import List
 
 from PIL import Image
-from win2xcur.cursor import CursorFrame, CursorImage
+from win2xcur.utils.cursor import CursorFrame, CursorImage
 from win2xcur.parser.base import BaseParser
 from win2xcur.parser.bmp import BMPParser
 

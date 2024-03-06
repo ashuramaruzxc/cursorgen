@@ -2,7 +2,7 @@ import struct
 from copy import copy
 from typing import Any, Iterable, List, Tuple
 
-from win2xcur.cursor import CursorFrame
+from win2xcur.utils.cursor import CursorFrame
 from win2xcur.parser.base import BaseParser
 from win2xcur.parser.cur import CURParser
 

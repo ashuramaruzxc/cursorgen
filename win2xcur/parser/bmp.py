@@ -8,6 +8,10 @@ from win2xcur.parser.base import BaseParser
 
 
 class BMPParser(BaseParser):
+    """adapted parts of:
+    https://chromium.googlesource.com/chromium/src/+/master/tools/resources/ico_tools.py
+    https://github.com/SystemRage/Iconolatry/blob/master/Iconolatry.py
+    """
     BMP_HEADER = struct.Struct('<2sIHHI')
     DIB_HEADER = struct.Struct('<IIIHHIIIIII')
 

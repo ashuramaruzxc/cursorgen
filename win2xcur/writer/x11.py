@@ -1,10 +1,9 @@
-import io
 from itertools import chain
 from operator import itemgetter
 from typing import List, Optional
 
 from PIL import Image
-from win2xcur.cursor import CursorFrame
+from win2xcur.utils.cursor import CursorFrame
 from win2xcur.parser import XCursorParser
 
 SIZES = [22, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 88, 96]

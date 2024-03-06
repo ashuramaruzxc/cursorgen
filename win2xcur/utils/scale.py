@@ -1,6 +1,6 @@
 from typing import List
 from PIL import Image
-from win2xcur.cursor import CursorFrame
+from win2xcur.utils.cursor import CursorFrame
 
 
 def apply_to_frames(frames: List[CursorFrame], *, scale: float) -> None:

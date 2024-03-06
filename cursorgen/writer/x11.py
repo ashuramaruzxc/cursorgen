@@ -1,10 +1,11 @@
 from itertools import chain
+
+from PIL import Image
 from operator import itemgetter
 from typing import List, Optional
 
-from PIL import Image
-from cursorgen.utils.cursor import CursorFrame
 from cursorgen.parser import XCursorParser
+from cursorgen.utils.cursor import CursorFrame
 
 SIZES = [22, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 88, 96]
 

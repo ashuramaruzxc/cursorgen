@@ -1,9 +1,9 @@
-import argparse
-import os
 import sys
-import traceback
 from multiprocessing import cpu_count
 
+import argparse
+import os
+import traceback
 from multiprocessing.pool import ThreadPool
 from threading import Lock
 from typing import BinaryIO

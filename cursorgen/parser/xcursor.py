@@ -1,11 +1,11 @@
-import struct
 from collections import defaultdict
+
+import struct
+from PIL import Image
 from typing import Any, Dict, List, Tuple, cast
 
-from PIL import Image
-
-from cursorgen.utils.cursor import CursorFrame, CursorImage
 from cursorgen.parser.base import BaseParser
+from cursorgen.utils.cursor import CursorFrame, CursorImage
 
 
 class XCursorParser(BaseParser):

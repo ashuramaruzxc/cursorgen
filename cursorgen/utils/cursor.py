@@ -1,5 +1,5 @@
-from typing import Iterator, List, Tuple
 from PIL import Image
+from typing import Iterator, List, Tuple
 
 
 class CursorImage:
@@ -13,7 +13,8 @@ class CursorImage:
         self.nominal = nominal
 
     def __repr__(self) -> str:
-        return f'CursorImage(image="Image with size {self.image.size}", hotspot={self.hotspot!r}, nominal={self.nominal!r})'
+        return (f'CursorImage(image="Image with size {self.image.size}", '
+                f'hotspot={self.hotspot!r}, nominal={self.nominal!r})')
 
 
 class CursorFrame:

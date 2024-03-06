@@ -1,8 +1,7 @@
-import struct
-from typing import Dict, Tuple, Any, List
-
-from PIL import Image
 import PIL.Image as ImageType
+import struct
+from PIL import Image
+from typing import Dict, Tuple, Any, List
 
 from cursorgen.parser.base import BaseParser
 
@@ -45,7 +44,10 @@ class BMPParser(BaseParser):
         biClrUsed = 0 (if not used)
         biClrImportant = 0 (if not used)
         """
-        size, width, height, planes, bpp, compression, image_size, x_pixels_per_meter, y_pixels_per_meter, colors_used, important_colors = self.DIB_HEADER.unpack(
+        (size, width, height,
+         planes, bpp, compression,
+         image_size, x_pixels_per_meter, y_pixels_per_meter,
+         colors_used, important_colors) = self.DIB_HEADER.unpack(
             self.blob[:self.DIB_HEADER.size])
 
         height = int(height / 2.)

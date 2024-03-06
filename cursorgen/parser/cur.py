@@ -1,10 +1,10 @@
 import struct
+from PIL import Image
 from typing import List
 
-from PIL import Image
-from cursorgen.utils.cursor import CursorFrame, CursorImage
 from cursorgen.parser.base import BaseParser
 from cursorgen.parser.bmp import BMPParser
+from cursorgen.utils.cursor import CursorFrame, CursorImage
 
 
 class CURParser(BaseParser):

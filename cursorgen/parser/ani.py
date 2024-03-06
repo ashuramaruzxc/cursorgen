@@ -2,9 +2,9 @@ import struct
 from copy import copy
 from typing import Any, Iterable, List, Tuple
 
-from cursorgen.utils.cursor import CursorFrame
 from cursorgen.parser.base import BaseParser
 from cursorgen.parser.cur import CURParser
+from cursorgen.utils.cursor import CursorFrame
 
 
 class ANIParser(BaseParser):

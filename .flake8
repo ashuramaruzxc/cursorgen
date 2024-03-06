@@ -1,4 +1,6 @@
 [flake8]
 max-line-length = 120
-application-import-names = win2xcur
+application-import-names = cursorgen
 import-order-style = pycharm
+exclude =
+    .venv

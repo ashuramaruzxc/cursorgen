@@ -1,4 +1,4 @@
-from typing import List, Type, Union, Optional
+from typing import List, Type, Union
 
 from cursorgen.parser.ani import ANIParser
 from cursorgen.parser.base import BaseParser
@@ -12,7 +12,7 @@ PARSERS: List[Type[BaseParser]] = [CURParser, ANIParser, XCursorParser]
 
 
 def open_blob(
-    blob: Union[bytes, List[bytes]],
+        blob: Union[bytes, List[bytes]],
 ) -> BaseParser:
     for parser in PARSERS:
         if parser.can_parse(blob):

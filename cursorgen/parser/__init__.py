@@ -1,4 +1,4 @@
-from typing import List, Type, Union
+from typing import List, Type
 
 from cursorgen.parser.ani import ANIParser
 from cursorgen.parser.base import BaseParser

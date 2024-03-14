@@ -44,11 +44,7 @@ def to_x11(frames: List[CursorFrame], sizes: Optional[List[int]] = None) -> byte
                     y,
                     delay,
                 )
-                chunks.append((
-                    XCursorParser.CHUNK_IMAGE,
-                    size,
-                    header + image_data
-                ))
+                chunks.append((XCursorParser.CHUNK_IMAGE, size, header + image_data))
 
     header = XCursorParser.FILE_HEADER.pack(
         XCursorParser.MAGIC,
@@ -60,11 +56,13 @@ def to_x11(frames: List[CursorFrame], sizes: Optional[List[int]] = None) -> byte
     offset = XCursorParser.FILE_HEADER.size + len(chunks) * XCursorParser.TOC_CHUNK.size
     toc = []
     for chunk_type, chunk_subtype, chunk in chunks:
-        toc.append(XCursorParser.TOC_CHUNK.pack(
-            chunk_type,
-            chunk_subtype,
-            offset,
-        ))
+        toc.append(
+            XCursorParser.TOC_CHUNK.pack(
+                chunk_type,
+                chunk_subtype,
+                offset,
+            )
+        )
         offset += len(chunk)
 
-    return b''.join(chain([header], toc, map(itemgetter(2), chunks)))
+    return b"".join(chain([header], toc, map(itemgetter(2), chunks)))

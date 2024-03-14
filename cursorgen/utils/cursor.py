@@ -7,14 +7,18 @@ class CursorImage:
     hotspot: Tuple[int, int]
     nominal: int
 
-    def __init__(self, image: Image.Image, hotspot: Tuple[int, int], nominal: int) -> None:
+    def __init__(
+        self, image: Image.Image, hotspot: Tuple[int, int], nominal: int
+    ) -> None:
         self.image = image
         self.hotspot = hotspot
         self.nominal = nominal
 
     def __repr__(self) -> str:
-        return (f'CursorImage(image="Image with size {self.image.size}", '
-                f'hotspot={self.hotspot!r}, nominal={self.nominal!r})')
+        return (
+            f'CursorImage(image="Image with size {self.image.size}", '
+            f"hotspot={self.hotspot!r}, nominal={self.nominal!r})"
+        )
 
 
 class CursorFrame:

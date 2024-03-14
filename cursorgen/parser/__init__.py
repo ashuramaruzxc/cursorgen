@@ -6,13 +6,20 @@ from cursorgen.parser.bmp import BMPParser
 from cursorgen.parser.cur import CURParser
 from cursorgen.parser.xcursor import XCursorParser
 
-__all__ = ['BMPParser', 'ANIParser', 'CURParser', 'XCursorParser', 'PARSERS', 'open_blob']
+__all__ = [
+    "BMPParser",
+    "ANIParser",
+    "CURParser",
+    "XCursorParser",
+    "PARSERS",
+    "open_blob",
+]
 
 PARSERS: List[Type[BaseParser]] = [CURParser, ANIParser, XCursorParser]
 
 
 def open_blob(
-        blob: Union[bytes, List[bytes]],
+    blob: Union[bytes, List[bytes]],
 ) -> BaseParser:
     for parser in PARSERS:
         if parser.can_parse(blob):

@@ -2,5 +2,6 @@
 max-line-length = 120
 application-import-names = cursorgen
 import-order-style = pycharm
+extend-ignore = E203
 exclude =
     .venv

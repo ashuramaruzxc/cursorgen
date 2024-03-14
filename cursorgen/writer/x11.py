@@ -1,6 +1,6 @@
 from itertools import chain
 from operator import itemgetter
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 from PIL import Image
 
@@ -10,7 +10,7 @@ from cursorgen.utils.cursor import CursorFrame
 SIZES = [22, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 88, 96]
 
 
-def to_x11(frames: List[CursorFrame], sizes: Optional[List[int]] = None) -> bytes:
+def to_x11(frames: List[CursorFrame], sizes: Optional[Iterable[int]] = None) -> bytes:
     if not sizes:
         sizes = set(SIZES)
     else:

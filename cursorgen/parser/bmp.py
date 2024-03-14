@@ -21,19 +21,19 @@ class BMPParser(BaseParser):
         """Check if the blob is one of the supported BMP types."""
         if len(blob) < cls.BMP_HEADER.size:
             return False
-        signature, *_ = cls.BMP_HEADER.unpack_from(blob)
+        signature: bool = cls.BMP_HEADER.unpack_from(blob)[0]
         return signature
 
     def __init__(self, blob: bytes) -> None:
         super().__init__(blob)
         self.image_data: List[bytes] = []
-        self.parameters: Dict = self._extract()
+        self.parameters = self._extract()
         self.frame = self._parse()
 
     def _unpack(self, struct_cls: struct.Struct, offset: int) -> Tuple[Any, ...]:
         return struct_cls.unpack(self.blob[offset : offset + struct_cls.size])
 
-    def _extract(self) -> Dict:
+    def _extract(self) -> Dict[str, Any]:
         """Gets bitmap parameters.
         Should be:
         biSize is the size of the header
@@ -115,7 +115,7 @@ class BMPParser(BaseParser):
         if self.parameters["bpp"] == 16:
             # PIL I;16 converted to RGB555 format.
             pad_ima = self._row_size(24, self.parameters["width"])
-            image_data = []
+            images_data = []
             for i in range(0, len(self.parameters["xor"]), 2):
                 data = int.from_bytes(
                     self.parameters["xor"][i : i + 2], byteorder="little"
@@ -127,9 +127,9 @@ class BMPParser(BaseParser):
                 g = (g << 3) | (g >> 2)
                 b = (b << 3) | (b >> 2)
                 value = r << 16 | g << 8 | b
-                image_data.append(value.to_bytes(3, byteorder="little"))
+                images_data.append(value.to_bytes(3, byteorder="little"))
 
-            image_data = b"".join(image_data)
+            image_data = b"".join(images_data)
             image = Image.frombytes(
                 modes[self.parameters["bpp"]][0],
                 (self.parameters["width"], self.parameters["height"]),
@@ -221,13 +221,13 @@ class BMPParser(BaseParser):
         return image
 
     @staticmethod
-    def _row_size(offset, width) -> int:
+    def _row_size(offset: int, width: int) -> int:
         """Computes number of bytes per row in a image (stride)."""
         # The size of each row is rounded up to the nearest multiple of 4 bytes.
         return int(((offset * width + 31) // 32)) * 4
 
     @staticmethod
-    def _mask_size(width) -> int:
+    def _mask_size(width: int) -> int:
         """Computes number of bytes for AND mask."""
         return int((width + 32 - width % 32 if (width % 32) > 0 else width) / 8)
 
@@ -236,7 +236,7 @@ class BMPParser(BaseParser):
         """Determines whether a sequence of bytes is a PNG."""
         return blob.startswith(b"\x89PNG\r\n\x1a\n")
 
-    def is_gray(self):
+    def is_gray(self) -> bool:
         """Determines whether an image is grayscale (from palette)."""
         chunks = [
             self.parameters["palette"][i : i + 3]

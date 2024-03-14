@@ -18,10 +18,8 @@ __all__ = [
 PARSERS: List[Type[BaseParser]] = [CURParser, ANIParser, XCursorParser]
 
 
-def open_blob(
-    blob: Union[bytes, List[bytes]],
-) -> BaseParser:
+def open_blob(blob: bytes) -> BaseParser:
     for parser in PARSERS:
         if parser.can_parse(blob):
-            return parser(blob)  # type: ignore
+            return parser(blob)
     raise ValueError("Unsupported file format")

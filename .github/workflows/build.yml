@@ -51,7 +51,7 @@ jobs:
           wget http://www.anicursor.com/waiting.zip
           mkdir ani output
           unzip waiting.zip -d ani
-          coverage run -a -m cursorgen -s ani/*.ani -o output
+          coverage run -a -m cursorgen ani/*.ani -o output
           ls -l output/*
       - name: Test with dmz-cursor-theme
         run: |

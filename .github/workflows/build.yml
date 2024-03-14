@@ -26,11 +26,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 flake8-import-order black mypy wheel coverage
+          pip install flake8 flake8-import-order black isort mypy wheel coverage
           pip install -r requirements.txt
           sudo apt-get install dmz-cursor-theme
-      - name: Format with black
-        run: black .
+      - name: Auto Formatting
+        run: |
+          black .
+          isort --profile black .
       - name: Lint with flake8
         run: flake8 .
       - name: Typecheck with mypy

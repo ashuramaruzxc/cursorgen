@@ -1,8 +1,8 @@
 from itertools import chain
-
-from PIL import Image
 from operator import itemgetter
 from typing import List, Optional
+
+from PIL import Image
 
 from cursorgen.parser import XCursorParser
 from cursorgen.utils.cursor import CursorFrame

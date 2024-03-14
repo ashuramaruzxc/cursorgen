@@ -43,7 +43,7 @@ class ANIParser(BaseParser):
         self.frames = self._parse(self.RIFF_HEADER.size)
 
     def _unpack(self, struct_cls: struct.Struct, offset: int) -> Tuple[Any, ...]:
-        return struct_cls.unpack(self.blob[offset : offset + struct_cls.size])
+        return struct_cls.unpack(self.blob[offset: offset + struct_cls.size])
 
     def _read_chunk(
         self, offset: int, expected: Iterable[bytes]
@@ -78,7 +78,7 @@ class ANIParser(BaseParser):
             planes,
             display_rate,
             flags,
-        ) = self.ANIH_HEADER.unpack(self.blob[offset : offset + self.ANIH_HEADER.size])
+        ) = self.ANIH_HEADER.unpack(self.blob[offset: offset + self.ANIH_HEADER.size])
 
         if size != self.ANIH_HEADER.size:
             raise ValueError(
@@ -100,7 +100,7 @@ class ANIParser(BaseParser):
             )
             if name == self.LIST_CHUNK:
                 list_end = offset + size
-                if self.blob[offset : offset + 4] != self.FRAME_TYPE:
+                if self.blob[offset: offset + 4] != self.FRAME_TYPE:
                     raise ValueError(
                         f"Unexpected RIFF list type: {self.blob[offset:offset + 4]!r}, expected {self.FRAME_TYPE!r}"
                     )
@@ -111,7 +111,7 @@ class ANIParser(BaseParser):
                         offset, expected=[self.ICON_CHUNK]
                     )
                     frames.append(
-                        CURParser(self.blob[offset : offset + size]).frames[0]
+                        CURParser(self.blob[offset: offset + size]).frames[0]
                     )
                     offset += size
                     if offset & 1:
@@ -125,7 +125,7 @@ class ANIParser(BaseParser):
                 order = [
                     i
                     for i, in self.UNSIGNED.iter_unpack(
-                        self.blob[offset : offset + size]
+                        self.blob[offset: offset + size]
                     )
                 ]
                 if len(order) != step_count:
@@ -137,7 +137,7 @@ class ANIParser(BaseParser):
                 delays = [
                     i
                     for i, in self.UNSIGNED.iter_unpack(
-                        self.blob[offset : offset + size]
+                        self.blob[offset: offset + size]
                     )
                 ]
                 if len(delays) != step_count:

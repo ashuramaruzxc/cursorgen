@@ -1,9 +1,8 @@
-import sys
-from multiprocessing import cpu_count
-
 import argparse
 import os
+import sys
 import traceback
+from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from threading import Lock
 from typing import BinaryIO

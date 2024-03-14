@@ -1,7 +1,8 @@
-import PIL.Image as ImageType
 import struct
+from typing import Any, Dict, List, Tuple
+
+import PIL.Image as ImageType
 from PIL import Image
-from typing import Dict, Tuple, Any, List
 
 from cursorgen.parser.base import BaseParser
 
@@ -30,7 +31,7 @@ class BMPParser(BaseParser):
         self.frame = self._parse()
 
     def _unpack(self, struct_cls: struct.Struct, offset: int) -> Tuple[Any, ...]:
-        return struct_cls.unpack(self.blob[offset : offset + struct_cls.size])
+        return struct_cls.unpack(self.blob[offset: offset + struct_cls.size])
 
     def _extract(self) -> Dict:
         """Gets bitmap parameters.
@@ -68,9 +69,9 @@ class BMPParser(BaseParser):
         if palette_size < 0:
             palette_size = 0
 
-        Palette = self.blob[size : size + palette_size]
-        XORData = self.blob[size + palette_size : size + palette_size + XOR_size]
-        ANDData = self.blob[size + palette_size + XOR_size : len(self.blob)]
+        Palette = self.blob[size: size + palette_size]
+        XORData = self.blob[size + palette_size: size + palette_size + XOR_size]
+        ANDData = self.blob[size + palette_size + XOR_size: len(self.blob)]
 
         parameters = {
             "size": size,
@@ -117,7 +118,7 @@ class BMPParser(BaseParser):
             image_data = []
             for i in range(0, len(self.parameters["xor"]), 2):
                 data = int.from_bytes(
-                    self.parameters["xor"][i : i + 2], byteorder="little"
+                    self.parameters["xor"][i: i + 2], byteorder="little"
                 )
                 b = (data & 0x7C00) >> 10
                 g = (data & 0x3E0) >> 5
@@ -174,11 +175,11 @@ class BMPParser(BaseParser):
         if self.parameters["palette"] and self.parameters["bpp"] <= 8:
             image = image.convert("P")
             palette_int = [
-                self.parameters["palette"][i : i + 3]
+                self.parameters["palette"][i: i + 3]
                 for i in range(0, self.parameters["size_pal"], 4)
             ]
             rsv = [
-                self.parameters["palette"][i + 3 : i + 4]
+                self.parameters["palette"][i + 3: i + 4]
                 for i in range(0, self.parameters["size_pal"], 4)
             ]
 
@@ -238,7 +239,7 @@ class BMPParser(BaseParser):
     def is_gray(self):
         """Determines whether an image is grayscale (from palette)."""
         chunks = [
-            self.parameters["palette"][i : i + 3]
+            self.parameters["palette"][i: i + 3]
             for i in range(0, self.parameters["size_pal"], 4)
         ]
         if all(elem == block[0] for block in chunks for elem in block):

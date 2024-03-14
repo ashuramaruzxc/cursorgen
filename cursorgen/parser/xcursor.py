@@ -1,8 +1,8 @@
-from collections import defaultdict
-
 import struct
-from PIL import Image
+from collections import defaultdict
 from typing import Any, Dict, List, Tuple, cast
+
+from PIL import Image
 
 from cursorgen.parser.base import BaseParser
 from cursorgen.utils.cursor import CursorFrame, CursorImage
@@ -25,7 +25,7 @@ class XCursorParser(BaseParser):
         self.frames = self._parse()
 
     def _unpack(self, struct_cls: struct.Struct, offset: int) -> Tuple[Any, ...]:
-        return struct_cls.unpack(self.blob[offset : offset + struct_cls.size])
+        return struct_cls.unpack(self.blob[offset: offset + struct_cls.size])
 
     def _parse(self) -> List[CursorFrame]:
         magic, header_size, version, toc_size = self._unpack(self.FILE_HEADER, 0)
@@ -89,7 +89,7 @@ class XCursorParser(BaseParser):
 
             image_start = position + self.IMAGE_HEADER.size
             image_size = width * height * 4
-            blob = self.blob[image_start : image_start + image_size]
+            blob = self.blob[image_start: image_start + image_size]
             if len(blob) != image_size:
                 raise ValueError(
                     f"Invalid image at {image_start}: expected {image_size} bytes, got {len(blob)} bytes"

@@ -1,6 +1,7 @@
 import struct
-from PIL import Image
 from typing import List
+
+from PIL import Image
 
 from cursorgen.parser.base import BaseParser
 from cursorgen.parser.bmp import BMPParser
@@ -35,10 +36,10 @@ class CURParser(BaseParser):
         for i in range(image_count):
             width, height, palette, reserved, hx, hy, size, file_offset = (
                 self.ICON_DIR_ENTRY.unpack(
-                    self.blob[offset : offset + self.ICON_DIR_ENTRY.size]
+                    self.blob[offset: offset + self.ICON_DIR_ENTRY.size]
                 )
             )
-            self.image_data.append(self.blob[file_offset : file_offset + size])
+            self.image_data.append(self.blob[file_offset: file_offset + size])
             hotspots.append((hx, hy))
 
             offset += self.ICON_DIR_ENTRY.size

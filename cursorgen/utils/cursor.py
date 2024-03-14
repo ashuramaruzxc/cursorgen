@@ -1,5 +1,6 @@
-from PIL import Image
 from typing import Iterator, List, Tuple
+
+from PIL import Image
 
 
 class CursorImage:

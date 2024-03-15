@@ -36,6 +36,7 @@
               black.enable = true;
               flake8.enable = true;
               isort.enable = true;
+              mypy.enable = true;
             };
             settings = {
               alejandra = {
@@ -68,6 +69,7 @@
                   black
                   flake8
                   isort
+                  mypy
                 ]))
             ];
           };

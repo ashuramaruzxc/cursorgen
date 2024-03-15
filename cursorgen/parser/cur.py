@@ -34,10 +34,17 @@ class CURParser(BaseParser):
         offset = self.ICON_DIR.size
         hotspots = []
         for i in range(image_count):
-            width, height, palette, reserved, hx, hy, size, file_offset = (
-                self.ICON_DIR_ENTRY.unpack(
-                    self.blob[offset : offset + self.ICON_DIR_ENTRY.size]
-                )
+            (
+                width,
+                height,
+                palette,
+                reserved,
+                hx,
+                hy,
+                size,
+                file_offset,
+            ) = self.ICON_DIR_ENTRY.unpack(
+                self.blob[offset : offset + self.ICON_DIR_ENTRY.size]
             )
             self.image_data.append(self.blob[file_offset : file_offset + size])
             hotspots.append((hx, hy))

@@ -3,16 +3,23 @@ repos:
     rev: 24.3.0
     hooks:
       - id: black
-  # - repo: https://github.com/pycqa/isort
-  #   rev: 5.11.2
-  #   hooks:
-  #     - id: isort
-  #       name: isort (python)
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
   - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
+    rev: 6.1.0
     hooks:
     - id: flake8
+      entry: pflake8
+      additional_dependencies: [pyproject-flake8]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.9.0
     hooks:
     - id: mypy
+      additional_dependencies: [numpy]
+  - repo: https://github.com/kamadorueda/alejandra
+    rev: 3.0.0
+    hooks:
+      - id: alejandra
+      

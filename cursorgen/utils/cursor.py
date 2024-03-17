@@ -8,9 +8,7 @@ class CursorImage:
     hotspot: Tuple[int, int]
     nominal: int
 
-    def __init__(
-        self, image: Image.Image, hotspot: Tuple[int, int], nominal: int
-    ) -> None:
+    def __init__(self, image: Image.Image, hotspot: Tuple[int, int], nominal: int) -> None:
         self.image = image
         self.hotspot = hotspot
         self.nominal = nominal

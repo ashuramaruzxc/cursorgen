@@ -12,9 +12,7 @@ from cursorgen.writer import to_x11
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Converts Windows cursors to X11 cursors."
-    )
+    parser = argparse.ArgumentParser(description="Converts Windows cursors to X11 cursors.")
     parser.add_argument(
         "files",
         type=argparse.FileType("rb"),
@@ -43,9 +41,7 @@ def main() -> None:
                 traceback.print_exc()
         else:
             result = to_x11(cursor.frames)
-            output = os.path.join(
-                args.output, os.path.splitext(os.path.basename(name))[0]
-            )
+            output = os.path.join(args.output, os.path.splitext(os.path.basename(name))[0])
 
             with open(f"{output}", "wb") as f:
                 f.write(result)

@@ -47,7 +47,7 @@ extend-ignore = "E203"
 [tool.mypy]
 ignore_missing_imports = true
 strict = true
-plugins = "numpy.typing.mypy_plugin"
+plugins = ["numpy.typing.mypy_plugin"]
 
 [tool.black]
 line-length = 120

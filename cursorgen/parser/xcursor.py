@@ -61,19 +61,13 @@ class XCursorParser(BaseParser):
             delay /= 1000
 
             if size != self.IMAGE_HEADER.size:
-                raise ValueError(
-                    f"Unexpected size: {size}, expected {self.IMAGE_HEADER.size}"
-                )
+                raise ValueError(f"Unexpected size: {size}, expected {self.IMAGE_HEADER.size}")
 
             if actual_type != chunk_type:
-                raise ValueError(
-                    f"Unexpected chunk type: {actual_type}, expected {chunk_type}"
-                )
+                raise ValueError(f"Unexpected chunk type: {actual_type}, expected {chunk_type}")
 
             if nominal_size != chunk_subtype:
-                raise ValueError(
-                    f"Unexpected nominal size: {nominal_size}, expected {chunk_subtype}"
-                )
+                raise ValueError(f"Unexpected nominal size: {nominal_size}, expected {chunk_subtype}")
 
             if width > 0x7FFF:
                 raise ValueError(f"Image width too large: {width}")
@@ -91,19 +85,13 @@ class XCursorParser(BaseParser):
             image_size = width * height * 4
             blob = self.blob[image_start : image_start + image_size]
             if len(blob) != image_size:
-                raise ValueError(
-                    f"Invalid image at {image_start}: expected {image_size} bytes, got {len(blob)} bytes"
-                )
+                raise ValueError(f"Invalid image at {image_start}: expected {image_size} bytes, got {len(blob)} bytes")
 
             image = Image.frombytes("RGBA", (width, height), blob, "raw", "BGRA")
-            images_by_size[nominal_size].append(
-                (CursorImage(image, (x_offset, y_offset), nominal_size), delay)
-            )
+            images_by_size[nominal_size].append((CursorImage(image, (x_offset, y_offset), nominal_size), delay))
 
         if len(set(map(len, images_by_size.values()))) != 1:
-            raise ValueError(
-                "cursorgen does not support animations where each size has different number of frames"
-            )
+            raise ValueError("cursorgen does not support animations where each size has different number of frames")
 
         result = []
         for sequence in cast(Any, zip(*images_by_size.values())):
@@ -112,9 +100,7 @@ class XCursorParser(BaseParser):
             images, delays = cast(Any, zip(*sequence))
 
             if len(set(delays)) != 1:
-                raise ValueError(
-                    "cursorgen does not support animations where each size has a different frame delay"
-                )
+                raise ValueError("cursorgen does not support animations where each size has a different frame delay")
 
             result.append(CursorFrame(list(images), delays[0]))
 

@@ -25,9 +25,7 @@ class CURParser(BaseParser):
         self.frames = self._create_frames()
 
     def _parse(self) -> List[Tuple[int, int]]:
-        reserved, ico_type, image_count = self.ICON_DIR.unpack(
-            self.blob[: self.ICON_DIR.size]
-        )
+        reserved, ico_type, image_count = self.ICON_DIR.unpack(self.blob[: self.ICON_DIR.size])
         assert reserved == 0
         assert ico_type == self.ICO_TYPE_CUR
 
@@ -43,9 +41,7 @@ class CURParser(BaseParser):
                 hy,
                 size,
                 file_offset,
-            ) = self.ICON_DIR_ENTRY.unpack(
-                self.blob[offset : offset + self.ICON_DIR_ENTRY.size]
-            )
+            ) = self.ICON_DIR_ENTRY.unpack(self.blob[offset : offset + self.ICON_DIR_ENTRY.size])
             self.image_data.append(self.blob[file_offset : file_offset + size])
             hotspots.append((hx, hy))
 

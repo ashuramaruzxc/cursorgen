@@ -106,9 +106,7 @@ class BMPParser(BaseParser):
         }
 
         if self.is_gray():
-            modes.update(
-                {8: ("L", "L"), 4: ("L", "L;4"), 2: ("L", "L;2"), 1: ("1", "1")}
-            )
+            modes.update({8: ("L", "L"), 4: ("L", "L;4"), 2: ("L", "L;2"), 1: ("1", "1")})
 
         pad_msk = self._mask_size(self.parameters["width"])
 
@@ -117,9 +115,7 @@ class BMPParser(BaseParser):
             pad_ima = self._row_size(24, self.parameters["width"])
             images_data = []
             for i in range(0, len(self.parameters["xor"]), 2):
-                data = int.from_bytes(
-                    self.parameters["xor"][i : i + 2], byteorder="little"
-                )
+                data = int.from_bytes(self.parameters["xor"][i : i + 2], byteorder="little")
                 b = (data & 0x7C00) >> 10
                 g = (data & 0x3E0) >> 5
                 r = data & 0x1F
@@ -174,23 +170,13 @@ class BMPParser(BaseParser):
 
         if self.parameters["palette"] and self.parameters["bpp"] <= 8:
             image = image.convert("P")
-            palette_int = [
-                self.parameters["palette"][i : i + 3]
-                for i in range(0, self.parameters["size_pal"], 4)
-            ]
-            rsv = [
-                self.parameters["palette"][i + 3 : i + 4]
-                for i in range(0, self.parameters["size_pal"], 4)
-            ]
+            palette_int = [self.parameters["palette"][i : i + 3] for i in range(0, self.parameters["size_pal"], 4)]
+            rsv = [self.parameters["palette"][i + 3 : i + 4] for i in range(0, self.parameters["size_pal"], 4)]
 
-            if (self.parameters["size_pal"] % 3 == 0) and (
-                self.parameters["size_pal"] % 4 == 0
-            ):
+            if (self.parameters["size_pal"] % 3 == 0) and (self.parameters["size_pal"] % 4 == 0):
                 if len(set(rsv)) <= 1:
                     # palette RGBA.
-                    palette_int = [
-                        pal[i] for pal in palette_int for i in reversed(range(3))
-                    ]
+                    palette_int = [pal[i] for pal in palette_int for i in reversed(range(3))]
                     self.parameters["num_pal"] = self.parameters["size_pal"] // 4
                 else:
                     # palette RGB.
@@ -203,9 +189,7 @@ class BMPParser(BaseParser):
                     self.parameters["num_pal"] = self.parameters["size_pal"] // 3
                 elif self.parameters["size_pal"] % 4 == 0:
                     # palette RGBA.
-                    palette_int = [
-                        pal[i] for pal in palette_int for i in reversed(range(3))
-                    ]
+                    palette_int = [pal[i] for pal in palette_int for i in reversed(range(3))]
                     self.parameters["num_pal"] = self.parameters["size_pal"] // 4
 
             if self.parameters["bpp"] == 1:
@@ -238,10 +222,7 @@ class BMPParser(BaseParser):
 
     def is_gray(self) -> bool:
         """Determines whether an image is grayscale (from palette)."""
-        chunks = [
-            self.parameters["palette"][i : i + 3]
-            for i in range(0, self.parameters["size_pal"], 4)
-        ]
+        chunks = [self.parameters["palette"][i : i + 3] for i in range(0, self.parameters["size_pal"], 4)]
         if all(elem == block[0] for block in chunks for elem in block):
             return True
         else:

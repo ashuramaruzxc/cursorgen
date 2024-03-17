@@ -3,11 +3,11 @@ repos:
     rev: 24.3.0
     hooks:
       - id: black
-  - repo: https://github.com/pycqa/isort
-    rev: 5.11.2
-    hooks:
-      - id: isort
-        name: isort (python)
+  # - repo: https://github.com/pycqa/isort
+  #   rev: 5.11.2
+  #   hooks:
+  #     - id: isort
+  #       name: isort (python)
   - repo: https://github.com/pycqa/flake8
     rev: 7.0.0
     hooks:

@@ -18,7 +18,7 @@ setup(
     author="ashuramaruzxc",
     author_email="ashuramaru@tenjin-dk.com",
     url="https://github.com/ashuramaruzxc/cursorgen",
-    description=" cursorgen is a fork of win2xcur that aims to preserve the image quality of the cursor.",
+    description="cursorgen is a fork of win2xcur that aims to preserve the image quality of the cursor.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     keywords="cur ani x11 windows win32 cursor xcursor",

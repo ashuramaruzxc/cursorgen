@@ -170,5 +170,3 @@ cython_debug/
 .code-workspace
 
 crosshair
-/.pre-commit-config.yaml
-.pre-commit-config.yaml

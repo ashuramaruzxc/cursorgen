@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cursorgen"
-version = "0.1.2"
+version = "0.1.3"
 description = "cursorgen is a fork of win2xcur that aims to preserve the image quality of the cursor."
 readme = "README.md"
 requires-python = ">=3.7"
